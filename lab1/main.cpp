@@ -5,6 +5,7 @@
 #include <iomanip>
 #include <string>
 #include <cstdlib>
+#include <sstream>
 
 bool readMatrix(const std::string& filename, std::vector<std::vector<double>>& matrix, int& size) {
     std::ifstream file(filename);
@@ -67,11 +68,24 @@ bool writeResult(const std::string& filename, const std::vector<std::vector<doub
 
 int main() {
     setlocale(LC_ALL, "");
+
+    std::string fileA, fileB, fileResult;
+
+    //ввод имен файлов
+    std::cout << "Файл первой матрицы (A): ";
+    std::cin >> fileA;
+
+    std::cout << "Файл второй матрицы (B): ";
+    std::cin >> fileB;
+
+    std::cout << "Файл для сохранения результата: ";
+    std::cin >> fileResult;
+
     std::vector<std::vector<double>> A, B, C;
     int sizeA, sizeB;
 
-    if (!readMatrix("M-a.txt", A, sizeA)) return 1;
-    if (!readMatrix("M-b.txt", B, sizeB)) return 1;
+    if (!readMatrix(fileA, A, sizeA)) return 1;
+    if (!readMatrix(fileB, B, sizeB)) return 1;
 
     if (sizeA != sizeB) {
         std::cerr << "Ошибка: Матрицы должны быть квадратными и одинакового размера для этой задачи." << std::endl;
@@ -79,7 +93,7 @@ int main() {
     }
     int N = sizeA;
 
-    std::cout << "Задача: Умножение квадратных матриц размером " << N << "x" << N << std::endl;
+    std::cout << "Умножение квадратных матриц " << N << "x" << N << std::endl;
 
     // Замер времени
     auto start = std::chrono::high_resolution_clock::now();
@@ -98,12 +112,17 @@ int main() {
     std::cout << "Объем задачи (Вход + Выход): " << totalVolume << " байт (" 
               << (double)totalVolume / 1024.0 << " Кб)" << std::endl;
 
-    if (!writeResult("result.txt", C, N)) return 1;
-    std::cout << "Результат сохранен в result.txt" << std::endl;
+    if (!writeResult(fileResult, C, N)) return 1;
+    std::cout << "Результат сохранен в " << fileResult << std::endl;
+
 
     std::cout << "\nЗапуск верификации (Python)..." << std::endl;
-    
-    int verifyStatus = system("python verify.py"); 
+
+    // Команда для Python: python verify.py <файл_A> <файл_B> <файл_результат>
+    std::stringstream cmd;
+    cmd << "python3 verify.py " << fileA << " " << fileB << " " << fileResult;
+
+    int verifyStatus = system(cmd.str().c_str()); 
 
     if (verifyStatus == 0) {
         std::cout << "Проверка пройдена: Результаты совпадают." << std::endl;

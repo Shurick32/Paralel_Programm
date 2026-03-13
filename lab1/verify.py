@@ -15,14 +15,18 @@ def load_matrix(filename):
         sys.exit(1)
 
 def main():
-    A, sizeA = load_matrix('M-a.txt')
-    B, sizeB = load_matrix('M-b.txt')
+    file_a = sys.argv[1]
+    file_b = sys.argv[2]
+    file_res = sys.argv[3]
+    
+    A, sizeA = load_matrix(file_a)
+    B, sizeB = load_matrix(file_b)
 
     if sizeA != sizeB:
         print("Размеры матриц не совпадают.")
         sys.exit(1)
 
-    C_cpp, sizeC = load_matrix('result.txt')
+    C_cpp, sizeC = load_matrix(file_res)
 
     C_python = np.dot(A, B)
 
